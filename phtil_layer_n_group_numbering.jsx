@@ -19,12 +19,12 @@ function Make_dialog()
 
 	////////////넘버링 패널
 	var _w = 184;
-	var _h = 174;
+	var _h = 200;
 	var _x1 = 10;
 	var _y1 = 4;
 	var _x2 = _x1 + _w;
 	var _y2 = _y1 + _h;
-	mainDlg.NRPnl = mainDlg.add('panel', [_x1, _y1, _x2, _y2], '레이어 숫자 변경 - 베타');
+	mainDlg.NRPnl = mainDlg.add('panel', [_x1, _y1, _x2, _y2], '레이어 숫자 변경 - 1.0');
 
 	//도움말
 	var hTextStr = '\n제작자  phtil\n\n버그를 발견하거나 좋은 기능 아이디어가 있으면, 아래 이메일 주소로 보내주세요. :)\n\nphtil@naver.com\n';
@@ -52,7 +52,6 @@ function Make_dialog()
 	var _x2 = mainDlg.NRPnl.SortPnl.RBUpper.bounds.right;
 	var _y2 = _y2 + 20;
 	mainDlg.NRPnl.SortPnl.RBLower = mainDlg.NRPnl.SortPnl.add('radiobutton', [_x1, _y1, _x2, _y2], '내림순');
-	
 	
 	////////////레이어 패널
 	var _x1 = 95;
@@ -85,16 +84,24 @@ function Make_dialog()
 		mainDlg.NRPnl.NRLayerPnl.selectCancelLayerType = 'layer';
 	}
 
-	
-	////////////넘버 입력 부분
+    ////////////레이어 이름 입력 부분
 	var _w = mainDlg.NRPnl.bounds.right - mainDlg.NRPnl.bounds.left -2;
 	var _x1 = (_w * 0.5) ;
-	var _y2 = mainDlg.NRPnl.NRLayerPnl.bounds.bottom + 34;
+	var _y2 = mainDlg.NRPnl.NRLayerPnl.bounds.bottom + 30;
 	var _y1 = _y2 - 25
 	var _x2 = (_w * 0.5) +(  (_w * 0.5) * 0.8 );
-	mainDlg.NRPnl.sText = mainDlg.NRPnl.add('statictext', [22, _y1 + 5, _x1, _y2] , '시작 숫자   : '); //텍스트
+	mainDlg.NRPnl.lText = mainDlg.NRPnl.add('statictext', [18, _y1 + 5, _x1, _y2] , '레이어 이름 :'); //텍스트
+	mainDlg.NRPnl.layerText = mainDlg.NRPnl.add('edittext', [_x1 + 5, _y1, _x2, _y2], ''); //입력 폼
+    
+	////////////넘버 입력 부분
+    //이 폼의 위치를 수정하면 확인 버튼과 취소 버튼도 자동으로 이동된다.
+	var _w = mainDlg.NRPnl.bounds.right - mainDlg.NRPnl.bounds.left -2;
+	var _x1 = (_w * 0.5) ;
+	var _y2 = mainDlg.NRPnl.NRLayerPnl.bounds.bottom + 60;
+	var _y1 = _y2 - 25
+	var _x2 = (_w * 0.5) +(  (_w * 0.5) * 0.8 );
+	mainDlg.NRPnl.sText = mainDlg.NRPnl.add('statictext', [18, _y1 + 5, _x1, _y2] , '시작 숫자    : '); //텍스트
 	mainDlg.NRPnl.startNumText = mainDlg.NRPnl.add('edittext', [_x1 + 5, _y1, _x2, _y2], '0'); //입력 폼
-	
 	
 	////////////확인 버튼
 	var _w = 70;
@@ -106,9 +113,11 @@ function Make_dialog()
 	mainDlg.NRPnl.okBtn.onClick = function()
 	{
 		startNum = toNumber( mainDlg.NRPnl.startNumText.text );
-		
+		beginName = mainDlg.NRPnl.layerText.text;
+         //alert(beginName)
 		if( isNaN(startNum) ) alert( "시작 숫자를 적어주세요." );
-		else {
+		else 
+        {
 			var prefs = {};
 			prefs.countFrom = 1;
 			prefs.zeroPadding = 3;
@@ -116,12 +125,11 @@ function Make_dialog()
 			prefs.topToBottom = false;
 			if( mainDlg.NRPnl.SortPnl.RBUpper.value ) prefs.topToBottom = true;
 			
-			renameLayers(activeDocument, prefs, startNum );
+			renameLayers(activeDocument, prefs, beginName + String(startNum) );
 			mainDlg.close(2);
 			return true;
 		}
 	}
-	
 	
 	////////////취소 버튼
 	var _w = 70;
@@ -134,7 +142,6 @@ function Make_dialog()
 	{
 		mainDlg.close(2);
 	}
-	
 	
 	////////////물음표 버튼
 	var _w = 16;
@@ -150,6 +157,8 @@ function Make_dialog()
 		mainDlg.NRPnl.NRLayerPnl.visible = helpTgl;
 		mainDlg.NRPnl.startNumText.visible = helpTgl;
 		mainDlg.NRPnl.sText.visible = helpTgl;
+        mainDlg.NRPnl.layerText.visible = helpTgl;
+        mainDlg.NRPnl.lText.visible = helpTgl;
 		mainDlg.NRPnl.okBtn.visible = helpTgl;
 		mainDlg.NRPnl.cancelBtn.visible = helpTgl;
 		
@@ -159,6 +168,7 @@ function Make_dialog()
 	
 	mainDlg.show();
 }
+
 
 //	배열에 들어 있는 레이어 정보에서 stringID와 같은 레이어는 배열에서 삭제
 //	getSelectedLayersIndex를 이용해서 받은 "선택된 레이어 정보 배열"이  필요한 함수
@@ -249,31 +259,36 @@ function renameLayers(activeDoc, prefs, startNum)
 	var len = selectedLayers.length;
 	//위에서 아래로 이름 변경
 	if (prefs.topToBottom) {
-		for (var i = 0; i < len; i++) {
+		for (var i = 0; i < len; i++)
+		{
 			selectLayerByIndex( selectedLayers[i] );
 			rename();
 		}
 	}
 	//아래에서 위로 이름 변경
 	else {
-		for (var i = len - 1; i >= 0; i--) {
+		for (var i = len - 1; i >= 0; i--)
+		{
 			selectLayerByIndex( selectedLayers[i] );
 			rename();
 		}
 	}
 
 	// 레이어를 다시 선택
-	for (var i = 0; i < len; i++) {
+	for (var i = 0; i < len; i++)
+	{
 		selectLayerByIndex(selectedLayers[i], true);
 	}
-
+	
+	
 	// 레이어 이름을 변경
-	function rename() {
+	function rename()
+	{
 		var index = 0;
-		index = Number(selectedLayers[i]);		
+		index = Number(selectedLayers[i]);
 		putLayerNameByIndex( index, newNumber );
-		newNumber++;		
-		prefs.countFrom++;		
+		newNumber++;
+		prefs.countFrom++;
 	}
 }
 
@@ -334,8 +349,33 @@ function putLayerNameByIndex( idx, name )
 	desc.putReference( charIDToTypeID("null"), ref );	
 	
 	var nameDesc = new ActionDescriptor();
-	nameDesc.putString( charIDToTypeID("Nm  "), name );	
+	nameDesc.putString( charIDToTypeID("Nm  "), name );
 	desc.putObject( charIDToTypeID("T   "), charIDToTypeID("Lyr "), nameDesc );
 	
 	executeAction( charIDToTypeID("setd"), desc, DialogModes.NO );
+}
+
+
+//디버그 멀티 라인 메시지
+function Show_debug_msg(strAry)
+{
+	var str = '';
+	for(var i = 0; i < strAry.length; i++)
+	{
+		str = str + '\n' + strAry[i];
+	}
+	alert(str);
+}
+
+
+//키 읽기 함수
+function Show_obj_key(obj)
+{
+	//키 읽기
+	var resultStr = this + '\n' ;
+	for(_key in obj)
+	{
+		resultStr = resultStr + _key + '\n';
+	}
+	alert(resultStr);
 }
