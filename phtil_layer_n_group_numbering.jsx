@@ -1,23 +1,18 @@
 ﻿///phtil_layer_n_group_numbering
 #target photoshop
 
-//열려있는 파일이 없으면 작동하지 않는다.
 if (app.documents.length > 0)
 {
 	Make_dialog();
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//	여기부터 함수 선언 시작.
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-////////////////////////////////////////////////////////////////////////////////////////////////////메인 UI 디자인
+//메인 UI
 function Make_dialog()
 {
-	//////////레이어 넘버링 메인 다이얼로그
+	//레이어 넘버링 메인 다이얼로그
 	mainDlg = new Window('dialog', 'layer & group numbering');
 
-	////////////넘버링 패널
+	//넘버링 패널
 	var _w = 184;
 	var _h = 200;
 	var _x1 = 10;
@@ -53,7 +48,7 @@ function Make_dialog()
 	var _y2 = _y2 + 20;
 	mainDlg.NRPnl.SortPnl.RBLower = mainDlg.NRPnl.SortPnl.add('radiobutton', [_x1, _y1, _x2, _y2], '내림순');
 	
-	////////////레이어 패널
+	//레이어 패널
 	var _x1 = 95;
 	var _y1 = 20;
 	var _x2 = _x1 + 70;
@@ -84,7 +79,7 @@ function Make_dialog()
 		mainDlg.NRPnl.NRLayerPnl.selectCancelLayerType = 'layer';
 	}
 
-    ////////////레이어 이름 입력 부분
+    //레이어 이름 입력 부분
 	var _w = mainDlg.NRPnl.bounds.right - mainDlg.NRPnl.bounds.left -2;
 	var _x1 = (_w * 0.5) ;
 	var _y2 = mainDlg.NRPnl.NRLayerPnl.bounds.bottom + 30;
@@ -93,7 +88,7 @@ function Make_dialog()
 	mainDlg.NRPnl.lText = mainDlg.NRPnl.add('statictext', [18, _y1 + 5, _x1, _y2] , '레이어 이름 :'); //텍스트
 	mainDlg.NRPnl.layerText = mainDlg.NRPnl.add('edittext', [_x1 + 5, _y1, _x2, _y2], ''); //입력 폼
     
-	////////////넘버 입력 부분
+	//넘버 입력 부분
     //이 폼의 위치를 수정하면 확인 버튼과 취소 버튼도 자동으로 이동된다.
 	var _w = mainDlg.NRPnl.bounds.right - mainDlg.NRPnl.bounds.left -2;
 	var _x1 = (_w * 0.5) ;
@@ -103,13 +98,13 @@ function Make_dialog()
 	mainDlg.NRPnl.sText = mainDlg.NRPnl.add('statictext', [18, _y1 + 5, _x1, _y2] , '시작 숫자    : '); //텍스트
 	mainDlg.NRPnl.startNumText = mainDlg.NRPnl.add('edittext', [_x1 + 5, _y1, _x2, _y2], '0'); //입력 폼
 	
-	////////////확인 버튼
+	//확인 버튼
 	var _w = 70;
 	var _h = 24;
 	var _x = mainDlg.NRPnl.SortPnl.bounds.left;
 	var _y = mainDlg.NRPnl.startNumText.bounds.bottom + 8;
 	mainDlg.NRPnl.okBtn = mainDlg.NRPnl.add ('button', [_x, _y, _x + _w, _y + _h], '확인');
-	//확인 버튼 기능
+	//확인 버튼 누르면 작동
 	mainDlg.NRPnl.okBtn.onClick = function()
 	{
 		startNum = toNumber( mainDlg.NRPnl.startNumText.text );
@@ -125,13 +120,13 @@ function Make_dialog()
 			prefs.topToBottom = false;
 			if( mainDlg.NRPnl.SortPnl.RBUpper.value ) prefs.topToBottom = true;
 			
-			renameLayers(activeDocument, prefs, beginName + String(startNum) );
+			renameLayers(activeDocument, prefs, beginName, startNum );
 			mainDlg.close(2);
 			return true;
 		}
 	}
 	
-	////////////취소 버튼
+	//취소 버튼
 	var _w = 70;
 	var _h = 24;
 	var _x = mainDlg.NRPnl.NRLayerPnl.bounds.left;
@@ -143,7 +138,7 @@ function Make_dialog()
 		mainDlg.close(2);
 	}
 	
-	////////////물음표 버튼
+	//물음표 버튼
 	var _w = 16;
 	var _h = 16;
 	var _x = mainDlg.NRPnl.bounds.right - (_w * 2);
@@ -193,11 +188,9 @@ function Layer_selection_cancel(selectedLayers, LyrType)
 }
 
 
-/////////////////////////해외 스크립트에서 가져온 함수 ///////////////////////////////
 //LayerCake Rename PhotoShop Script by Steve Derico http://www.stevederico.com
 // Author: Trevor Morris (trevor@morris-photographics.com)
 // Website: http://morris-photographics.com/
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //선택된 레이어의 인덱스를 알려준다
 function getSelectedLayersIndex(doc) 
@@ -206,28 +199,35 @@ function getSelectedLayersIndex(doc)
 	var ref = new ActionReference();
 	ref.putEnumerated(cTID('Dcmn'), cTID('Ordn'), cTID('Trgt'));
 	var desc = executeActionGet(ref);
-	if (desc.hasKey(sTID('targetLayers'))) {
+	if (desc.hasKey(sTID('targetLayers'))) 
+	{
 		desc = desc.getList(sTID('targetLayers'));
 		var c = desc.count; 
-		for (var i = 0; i < c; i++) {
-			try {
+		for (var i = 0; i < c; i++) 
+		{
+			try 
+			{
 				doc.backgroundLayer;
 				selectedLayers.push(desc.getReference(i).getIndex());				
 			}
-			catch(e) {
+			catch(e) 
+			{
 				selectedLayers.push(desc.getReference(i).getIndex() + 1);
 			}
 		}
 	}
-	else {
+	else 
+	{
 		var ref = new ActionReference();
 		ref.putProperty(cTID('Prpr'), cTID('ItmI'));
 		ref.putEnumerated(cTID('Lyr '), cTID('Ordn'), cTID('Trgt'));
-		try {
+		try 
+		{
 			doc.backgroundLayer;
 			selectedLayers.push(executeActionGet(ref).getInteger(cTID('ItmI')) - 1);
 		}
-		catch(e) {
+		catch(e) 
+		{
 			selectedLayers.push(executeActionGet(ref).getInteger(cTID('ItmI')));
 		}
 	}
@@ -241,7 +241,7 @@ function sTID(s) { return app.stringIDToTypeID(s); }
 
 
 // 레이어 이름 변환
-function renameLayers(activeDoc, prefs, startNum) 
+function renameLayers(activeDoc, prefs, beginName, startNum) 
 {
 	//레퍼런스
 	var selectedLayers = getSelectedLayersIndex(activeDoc);
@@ -254,11 +254,12 @@ function renameLayers(activeDoc, prefs, startNum)
 	// 타입별로 레이어 선택 해제
 	selectedLayers = Layer_selection_cancel(selectedLayers, mainDlg.NRPnl.NRLayerPnl.selectCancelLayerType);
 	
-	var newNumber = startNum;	
+	var newNumber = startNum;
 	
 	var len = selectedLayers.length;
 	//위에서 아래로 이름 변경
-	if (prefs.topToBottom) {
+	if (prefs.topToBottom) 
+	{
 		for (var i = 0; i < len; i++)
 		{
 			selectLayerByIndex( selectedLayers[i] );
@@ -266,27 +267,20 @@ function renameLayers(activeDoc, prefs, startNum)
 		}
 	}
 	//아래에서 위로 이름 변경
-	else {
+	else 
+	{
 		for (var i = len - 1; i >= 0; i--)
 		{
 			selectLayerByIndex( selectedLayers[i] );
 			rename();
 		}
 	}
-
-	// 레이어를 다시 선택
-	for (var i = 0; i < len; i++)
-	{
-		selectLayerByIndex(selectedLayers[i], true);
-	}
-	
 	
 	// 레이어 이름을 변경
 	function rename()
 	{
-		var index = 0;
-		index = Number(selectedLayers[i]);
-		putLayerNameByIndex( index, newNumber );
+		var index = Number(selectedLayers[i]);
+		putLayerNameByIndex( index, beginName + newNumber.toString() );
 		newNumber++;
 		prefs.countFrom++;
 	}
